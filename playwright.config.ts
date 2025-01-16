@@ -13,6 +13,18 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  use: {
+    baseURL: 'https://guest:welcome2qauto@qauto.forstudy.space/',
+    headless: false,
+    viewport: { width: 1280, height: 720 },
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    browserName: 'chromium', // Default browser (chromium, firefox, webkit)
+    //headless: false, // Run tests in a visible browser
+    launchOptions: {
+      slowMo: 500, // Slow down browser operations for debugging
+    },
+  },
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -22,32 +34,34 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  //reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-  },
+  reporter: [
+    ['list'], // Default console output
+    ['html', { outputFolder: 'playwright-report' }], // Generate an HTML report
+    ['json', { outputFile: 'results.json' }], // Save results to a JSON file
+  ],
 
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'Desktop Chromium',
+      use: { browserName: 'chromium', viewport: { width: 1920, height: 1080 } },
     },
-
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: 'Mobile WebKit',
+      use: {
+        browserName: 'webkit',
+        viewport: { width: 375, height: 667 },
+        deviceScaleFactor: 2,
+        isMobile: true,
+      },
     },
-
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: 'Firefox',
+      use: { browserName: 'firefox' },
     },
+  ],
 
     /* Test against mobile viewports. */
     // {
@@ -68,7 +82,7 @@ export default defineConfig({
     //   name: 'Google Chrome',
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
-  ],
+  
 
   /* Run your local dev server before starting the tests */
   // webServer: {
