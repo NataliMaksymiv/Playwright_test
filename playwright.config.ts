@@ -36,16 +36,16 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   //reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  reporter: [
+  /*reporter: [
     ['list'], // Default console output
     ['html', { outputFolder: 'playwright-report' }], // Generate an HTML report
     ['json', { outputFile: 'results.json' }], // Save results to a JSON file
-  ],
+  ],*/
 
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'Desktop Chromium',
+      name: 'chromium',
       use: { browserName: 'chromium', viewport: { width: 1920, height: 1080 } },
     },
     {
