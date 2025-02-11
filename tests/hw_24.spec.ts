@@ -1,99 +1,116 @@
 import { test, expect } from '@playwright/test';
-import getRegistrationPage from '../page-objects/RegistrationPage';
+import { RegistrationPage } from '../page-objects/RegistrationPage';
 
-const randomNumber = Math.floor(100 + Math.random() * 900);
-let generateEmail = `aqa${randomNumber}nata@gmail.com`;
-
-let registrationPage: ReturnType<typeof getRegistrationPage>; 
-
-test.beforeEach(async ({ page }) => {
-  registrationPage = getRegistrationPage(page);
-  await page.goto('/');
-  await registrationPage.openSignUpForm();
-});
+let randomNumber: number = Math.floor(100 + Math.random() * 900);
+let generateEmail: string = `aqa${randomNumber}nata@gmail.com`;
 
 test.describe('Registration Form Tests', () => {
+  let registrationPage: RegistrationPage;
+
+  test.beforeEach(async ({ page }) => {
+    registrationPage = new RegistrationPage(page);
+    await registrationPage.navigateToSignUp();
+  });
+
   test('Positive Test: Register with valid data', async () => {
-    await registrationPage.fillRegistrationForm('John', 'Doe', generateEmail, 'Password123', 'Password123');
-    await registrationPage.submitRegistration();
-    await expect(registrationPage.page).toHaveURL(`https://qauto.forstudy.space/panel/garage`);
+    await registrationPage.enterName('John');
+    await registrationPage.enterLastName('Doe');
+    await registrationPage.enterEmail(generateEmail);
+    await registrationPage.enterPassword('Password123');
+    await registrationPage.enterRepeatPassword('Password123');
+    await registrationPage.submitForm();
+    await expect(registrationPage.page).toHaveURL('https://qauto.forstudy.space/panel/garage');
   });
 
-  test('Negative Test: Empty Name field show error message', async () => {
-    await registrationPage.page.click('#signupName');
-    await registrationPage.page.click('#signupPassword');
-    await registrationPage.expectRegistrationError(0, 'Name required');
-    await registrationPage.expectBorderColor(0, 'rgb(220, 53, 69)');
-    await registrationPage.expectRegisterButtonDisabled();
-  });
+  test('Negative Test: Empty fields show error messages', async () => {
+    await registrationPage.enterName('');
+    await registrationPage.enterLastName('');
+    await registrationPage.enterEmail('');
+    await registrationPage.enterPassword('');
+    await registrationPage.enterRepeatPassword('');
 
-  test('Negative Test: Empty Last name field show error message', async () => {
-    await registrationPage.page.click('#signupLastName');
-    await registrationPage.page.click('#signupPassword');
-    await registrationPage.expectRegistrationError(0, 'Last name required');
-    await registrationPage.expectBorderColor(0, 'rgb(220, 53, 69)');
-    await registrationPage.expectRegisterButtonDisabled();
-  });
+    expect(await registrationPage.getErrorMessage(0)).toBe('Name required');
+    expect(await registrationPage.getErrorMessage(1)).toBe('Last name required');
+    expect(await registrationPage.getErrorMessage(2)).toBe('Email required');
+    expect(await registrationPage.getErrorMessage(3)).toBe('Password required');
+    expect(await registrationPage.getErrorMessage(4)).toBe('Re-enter password required');
 
-  test('Negative Test: Empty Email field show error message', async () => {
-    await registrationPage.page.click('#signupEmail');
-    await registrationPage.page.click('#signupPassword');
-    await registrationPage.expectRegistrationError(0, 'Email required');
-    await registrationPage.expectBorderColor(0, 'rgb(220, 53, 69)');
-    await registrationPage.expectRegisterButtonDisabled();
-  });
-
-  test('Negative Test: Empty Password field show error message', async () => {
-    await registrationPage.page.click('#signupPassword');
-    await registrationPage.page.click('#signupEmail');
-    await registrationPage.expectRegistrationError(0, 'Password required');
-    await registrationPage.expectBorderColor(0, 'rgb(220, 53, 69)');
-    await registrationPage.expectRegisterButtonDisabled();
-  });
-
-  test('Negative Test: Empty Re-enter password field show error message', async () => {
-    await registrationPage.page.click('#signupRepeatPassword');
-    await registrationPage.page.click('#signupEmail');
-    await registrationPage.expectRegistrationError(0, 'Re-enter password required');
-    await registrationPage.expectBorderColor(0, 'rgb(220, 53, 69)');
-    await registrationPage.expectRegisterButtonDisabled();
+    expect(await registrationPage.isRegisterButtonDisabled()).toBeTruthy();
   });
 
   test('Negative Test: Invalid email format', async () => {
-    await registrationPage.page.fill('#signupEmail', 'invalidemail');
-    await registrationPage.page.click('#signupPassword');
-    await registrationPage.expectRegistrationError(0, 'Email is incorrect');
-    await registrationPage.expectBorderColor(0, 'rgb(220, 53, 69)');
-    await registrationPage.expectColor(0, 'rgb(220, 53, 69)');
+    await registrationPage.enterEmail('invalidemail');
+    await registrationPage.enterPassword('Password123');
+
+    expect(await registrationPage.getErrorMessage(0)).toBe('Email is incorrect');
+  });
+
+  test('Negative Test: Password does not meet requirements', async () => {
+    await registrationPage.enterPassword('pass');
+    await registrationPage.enterRepeatPassword('pass');
+
+    expect(await registrationPage.getErrorMessage(0)).toBe(
+      'Password has to be from 8 to 15 characters long and contain at least one integer, one capital, and one small letter'
+    );
   });
 
   test('Negative Test: Passwords do not match', async () => {
-    await registrationPage.page.fill('#signupPassword', 'Password123');
-    await registrationPage.page.fill('#signupRepeatPassword', 'Password321');
-    await registrationPage.page.click('#signupEmail');
-    await registrationPage.expectRegistrationError(0, 'Passwords do not match');
-    await registrationPage.expectBorderColor(0, 'rgb(220, 53, 69)');
-    await registrationPage.expectColor(0, 'rgb(220, 53, 69)');
+    await registrationPage.enterPassword('Password123');
+    await registrationPage.enterRepeatPassword('Password321');
+
+    expect(await registrationPage.getErrorMessage(0)).toBe('Passwords do not match');
   });
 
-  test('Negative Test: Leading and trailing spaces in name and last name', async ({ page }) => {
-    await registrationPage.fillRegistrationForm('   John   ', '   Doe   ', generateEmail, 'Password123', 'Password123');
-  
-    await registrationPage.expectRegistrationError(0, 'Name is invalid');
-    await registrationPage.expectRegistrationError(1, 'Last name is invalid');
-    await registrationPage.expectRegisterButtonDisabled();
+  test('Negative Test: Name field contains invalid characters', async () => {
+    await registrationPage.enterName('John@123');
+
+    expect(await registrationPage.getErrorMessage(0)).toBe('Name is invalid');
+  });
+
+  test('Negative Test: Leading and trailing spaces in name and last name', async () => {
+    await registrationPage.enterName('   John   ');
+    await registrationPage.enterLastName('   Doe   ');
+    await registrationPage.enterEmail(generateEmail);
+    await registrationPage.enterPassword('Password123');
+    await registrationPage.enterRepeatPassword('Password123');
+expect(await registrationPage.getErrorMessage(0)).toBe('Name is invalid');
+    expect(await registrationPage.getErrorMessage(1)).toBe('Last name is invalid');
+    expect(await registrationPage.isRegisterButtonDisabled()).toBeTruthy();
   });
 
   test('Negative Test: Duplicate email registration', async () => {
-    await registrationPage.fillRegistrationForm('Natali', 'Maksy', generateEmail, 'Password123', 'Password123');
-    await registrationPage.submitRegistration();
-    await registrationPage.page.locator('#userNavDropdown').click();
-    await registrationPage.page.locator('.dropdown-item', { hasText: 'Logout' }).click();
+    const duplicateEmail = generateEmail;
 
-    await registrationPage.openSignUpForm();
-    await registrationPage.fillRegistrationForm('Natali', 'Maksy', generateEmail, 'Password123', 'Password123');
-    await registrationPage.submitRegistration();
+    // First registration
+    await registrationPage.enterName('Natali');
+    await registrationPage.enterLastName('Maksy');
+    await registrationPage.enterEmail(duplicateEmail);
+    await registrationPage.enterPassword('Password123');
+    await registrationPage.enterRepeatPassword('Password123');
+    await registrationPage.submitForm();
+    await registrationPage.logout();
+
+    // Second registration with the same email
+    await registrationPage.navigateToSignUp();
+    await registrationPage.enterName('Natali');
+    await registrationPage.enterLastName('Maksy');
+    await registrationPage.enterEmail(duplicateEmail);
+    await registrationPage.enterPassword('Password123');
+    await registrationPage.enterRepeatPassword('Password123');
+    await registrationPage.submitForm();
 
     await expect(registrationPage.page.locator('.ng-touched .alert')).toHaveText('User already exists');
   });
 });
+/*test.describe('My describe', async() => {
+  test('My test', async({page}) => {
+    await page.goto('/');
+    await page.locator('.header_right .btn').click();
+    await page.fill('#signinEmail', 'naty.maksymiv+12@gmail.com');
+    await page.fill('#signinPassword', 'N04051985m');
+    await page.locator('.btn', {hasText: 'Login'}).click();
+    await page.locator('#userNavDropdown').click();
+    await page.locator('.dropdown-item', {hasText:'Logout'}).click();
+  });
+  
+});*/

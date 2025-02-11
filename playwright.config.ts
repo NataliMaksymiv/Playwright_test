@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+//require('dotenv').config();
+import dotenv from 'dotenv';
 
+dotenv.config(); 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -14,11 +17,16 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   use: {
-    baseURL: 'https://guest:welcome2qauto@qauto.forstudy.space/',
-    headless: false,
+    baseURL: process.env.BASE_URL,
+    httpCredentials: {
+      username: process.env.HTTP_USERNAME || '',
+      password: process.env.HTTP_PASSWORD || '',
+    },
+    headless: true,
     viewport: { width: 1280, height: 720 },
-    video: 'retain-on-failure',
-    screenshot: 'only-on-failure',
+    //video: 'retain-on-failure',
+    //
+    // screenshot: 'only-on-failure',
     browserName: 'chromium', // Default browser (chromium, firefox, webkit)
     //headless: false, // Run tests in a visible browser
     launchOptions: {

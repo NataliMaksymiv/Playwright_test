@@ -1,43 +1,56 @@
 import { BasePage } from './BasePage';
 import { Page, expect } from '@playwright/test';
 
-class RegistrationPage extends BasePage {
+export class RegistrationPage {
+  readonly page: Page;
+
   constructor(page: Page) {
-    super(page);
+    this.page = page;
   }
 
-  async openSignUpForm() {
-    await this.click('.hero-descriptor_btn:text("Sign up")');
+  async navigateToSignUp() {
+    await this.page.goto('/');
+    await this.page.locator('.hero-descriptor_btn', { hasText: 'Sign up' }).click();
   }
 
-  async fillRegistrationForm(name: string, lastName: string, email: string, password: string, repeatPassword: string) {
-    await this.fillField('#signupName', name);
-    await this.fillField('#signupLastName', lastName);
-    await this.fillField('#signupEmail', email);
-    await this.fillField('#signupPassword', password);
-    await this.fillField('#signupRepeatPassword', repeatPassword);
+  async enterName(name: string) {
+    await this.page.fill('#signupName', name);
   }
 
-  async submitRegistration() {
-    await this.click('.modal-footer .btn');
+  async enterLastName(lastName: string) {
+    await this.page.fill('#signupLastName', lastName);
   }
 
-  async expectRegistrationError(index: number, expectedText: string) {
-    await expect(this.page.locator('.invalid-feedback').nth(index)).toHaveText(expectedText);
+  async enterEmail(email: string) {
+    await this.page.fill('#signupEmail', email);
   }
 
-  async expectBorderColor(index: number, color: string) {
-    await expect(this.page.locator('.invalid-feedback').nth(index)).toHaveCSS('border-color', color);
+  async enterPassword(password: string) {
+    await this.page.fill('#signupPassword', password);
   }
 
-  async expectColor( index: number, color: string) {
-    await expect(this.page.locator('.invalid-feedback').nth(index)).toHaveCSS('color', color);
+  async enterRepeatPassword(repeatPassword: string) {
+    await this.page.fill('#signupRepeatPassword', repeatPassword);
   }
 
-  async expectRegisterButtonDisabled() {
-    await this.expectDisabled('.btn:text("Register")');
+  async submitForm() {
+    await this.page.click('.modal-footer .btn');
+  }
+
+  async isRegisterButtonDisabled() {
+    return this.page.locator('.btn', { hasText: 'Register' }).isDisabled();
+  }
+
+  async getErrorMessage(index: number) {
+    return await this.page.locator('.invalid-feedback').nth(index).innerText();
+  }
+
+  async getBorderColor(index: number) {
+    return await this.page.locator('.invalid-feedback').nth(index).evaluate((el) => getComputedStyle(el).borderColor);
+  }
+
+  async logout() {
+    await this.page.locator('#userNavDropdown').click();
+    await this.page.locator('.dropdown-item', { hasText: 'Logout' }).click();
   }
 }
-
-export default (page: Page) => new RegistrationPage(page);
-
