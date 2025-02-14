@@ -17,7 +17,7 @@ dotenv.config();
 export default defineConfig({
   testDir: './tests',
   use: {
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.BASE_URL || '',
     httpCredentials: {
       username: process.env.HTTP_USERNAME || '',
       password: process.env.HTTP_PASSWORD || '',

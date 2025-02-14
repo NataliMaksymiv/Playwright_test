@@ -102,15 +102,4 @@ expect(await registrationPage.getErrorMessage(0)).toBe('Name is invalid');
     await expect(registrationPage.page.locator('.ng-touched .alert')).toHaveText('User already exists');
   });
 });
-/*test.describe('My describe', async() => {
-  test('My test', async({page}) => {
-    await page.goto('/');
-    await page.locator('.header_right .btn').click();
-    await page.fill('#signinEmail', 'naty.maksymiv+12@gmail.com');
-    await page.fill('#signinPassword', 'N04051985m');
-    await page.locator('.btn', {hasText: 'Login'}).click();
-    await page.locator('#userNavDropdown').click();
-    await page.locator('.dropdown-item', {hasText:'Logout'}).click();
-  });
-  
-});*/
+
