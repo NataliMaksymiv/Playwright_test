@@ -1,33 +1,11 @@
-import{test, expect, Locator} from '@playwright/test';
-//import RegisrationPage from '../page-objects/RegistrationPage';
-import SignInForm from '../page-objects/SignInForm';
-import GaragePage from '../page-objects/GaragePage';
-import HomePage from '../page-objects/HomePage';
+import { expect, Locator, chromium, Page } from '@playwright/test';
+import { test } from '../test-data/userGaragePage';
 
 
-test.describe(('Garage test with POM'), () => {
-       //let registrationPage: RegisrationPage;
-       test.use({storageState: './test-data/states/userOne.json' })
-       let signInForm: SignInForm;
-       let garagePage: GaragePage;
-       let homePage: HomePage;
+test.describe('Garage page with fixture', () => {
 
-       test.beforeEach(async ({page}) => {
-
-        //registrationPage = new RegisrationPage(page);
-        signInForm = new SignInForm(page);
-        garagePage = new GaragePage(page);
-        homePage = new HomePage(page);
-
-        //await homePage.open();
-        //await homePage.clickSignInButton();
-
-       })
-
-       test(' Add Ford Fiesta', async () => {
-        await garagePage.createCar('Ford', 'Fiesta', 15000);
-        await garagePage.verifyCarAdded('Ford', 'Fiesta');
-       });
-       
-
+    test('Open Garage with logged user', async ({garagePageWithLoggedUser}) => {
+        await garagePageWithLoggedUser.createCar('Ford', 'Fiesta', 15000);
+        await garagePageWithLoggedUser.verifyCarAdded('Ford', 'Fiesta');
+    })
 })

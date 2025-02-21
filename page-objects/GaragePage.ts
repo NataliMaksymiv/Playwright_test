@@ -13,6 +13,7 @@ export default class GaragePage {
     readonly editCarButton:Locator;
     readonly removeCarButton:Locator;
     readonly submitRemoveCarButton: Locator;
+    readonly carsList: Locator;
 
 
     constructor(page: Page) {
@@ -27,7 +28,8 @@ export default class GaragePage {
         this.addFuelExpenseButton = page.locator('.panel-page_cars .car_add-expense', { hasText: 'Add fuel expense' });
         this.editCarButton = page.locator('.car-list .car-item:nth-child(2) .car_edit .icon');
         this.removeCarButton = page.locator('.btn', { hasText: 'Remove car' });
-        this.submitRemoveCarButton = page.locator('.modal-footer .btn', { hasText: 'Remove' })
+        this.submitRemoveCarButton = page.locator('.modal-footer .btn', { hasText: 'Remove' });
+        this.carsList = page.locator('.panel-page_content .car-list');
     }
 
     // Methods
@@ -66,7 +68,7 @@ export default class GaragePage {
     }
 
     async verifyCarAdded(brand: string, model: string): Promise<void> {
-        const carItem = this.page.locator(`text=${brand} ${model}`);
+        const carItem = this.page.locator(`text=${brand} ${model}`).nth(0);
         await expect(carItem).toBeVisible();
     }
 
@@ -75,6 +77,14 @@ export default class GaragePage {
     }
     async verifyPageIsOpen(){
         await expect (this.pageHeader).toContainText('Garage');
+    }
+    async deleteAllCars(){
+        const cars = await this.carsList.all();
+        for(let i=0; i < cars.length; i++) {
+              await cars[i].locator('span[class="icon icon-edit"]').nth(0).click();
+              await this.page.locator('button[class="btn btn-outline-danger"]').nth(0).click();
+              await this.page.locator('button[class="btn btn-danger"]').nth(0).click();
+        };
     }
 }
 
