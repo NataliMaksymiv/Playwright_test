@@ -1,6 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 
-export class SignInForm {
+export default class SignInForm {
   readonly page: Page;
   readonly emailField: Locator;
   readonly passwordField: Locator;

@@ -22,16 +22,15 @@ export default defineConfig({
       username: process.env.HTTP_USERNAME || '',
       password: process.env.HTTP_PASSWORD || '',
     },
-    headless: true,
+    //headless: true,
     viewport: { width: 1280, height: 720 },
     //video: 'retain-on-failure',
     //
     // screenshot: 'only-on-failure',
     browserName: 'chromium', // Default browser (chromium, firefox, webkit)
     //headless: false, // Run tests in a visible browser
-    launchOptions: {
-      slowMo: 500, // Slow down browser operations for debugging
-    },
+    //launchOptions: {
+    //  slowMo: 500, // Slow down browser operations for debugging},
   },
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -42,7 +41,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  //reporter: 'html',
+  //reporter: [['html'], ['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   /*reporter: [
     ['list'], // Default console output
@@ -55,21 +54,14 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { browserName: 'chromium', viewport: { width: 1920, height: 1080 } },
+      dependencies: ['setup']
     },
     {
-      name: 'Mobile WebKit',
-      use: {
-        browserName: 'webkit',
-        viewport: { width: 375, height: 667 },
-        deviceScaleFactor: 2,
-        isMobile: true,
-      },
-    },
-    {
-      name: 'Firefox',
-      use: { browserName: 'firefox' },
-    },
-  ],
+      name: 'setup',
+      use: { browserName: 'chromium', viewport: { width: 1920, height: 1080 } },
+      testMatch: '*setup/*.ts'
+    }
+  ]
 
     /* Test against mobile viewports. */
     // {

@@ -1,6 +1,6 @@
 import { Page, expect } from '@playwright/test';
 
-export class BasePage {
+export default class BasePage {
   public page: Page;
 
   constructor(page: Page) {
@@ -26,6 +26,7 @@ export class BasePage {
   async expectDisabled(selector: string) {
     await expect(this.page.locator(selector)).toBeDisabled();
   }
+  
 }
 
 

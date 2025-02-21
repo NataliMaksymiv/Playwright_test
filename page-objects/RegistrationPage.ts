@@ -1,7 +1,7 @@
 //import { BasePage } from './BasePage';
 import { Page, expect } from '@playwright/test';
 
-export class RegistrationPage {
+export default class RegistrationPage {
   readonly page: Page;
 
   constructor(page: Page) {
@@ -54,3 +54,4 @@ export class RegistrationPage {
     await this.page.locator('.dropdown-item', { hasText: 'Logout' }).click();
   }
 }
+
