@@ -54,7 +54,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { browserName: 'chromium', viewport: { width: 1920, height: 1080 } },
-      dependencies: ['setup']
+      //dependencies: ['setup']
     },
     {
       name: 'setup',
